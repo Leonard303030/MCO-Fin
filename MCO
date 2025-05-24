@@ -1,0 +1,204 @@
+// Hospital Admission System
+// This script simulates a hospital admission system where patients can select services, view prices, and make payments.
+// It includes a simple user interface using prompts and alerts.
+ //The script is designed to be run in a browser environment where `prompt` and `alert` functions are available.
+// The script allows the user to input patient details, select services from predefined categories, and generate a receipt with payment options.
+
+// Service Data Structure
+//Stores available hospital services, grouped by category.
+//Each sub-service has a price.
+const services = {
+    "Laboratory": {
+        "S.C (S)": 50.0,
+        "Drug Test": 30.0,"X-ray": 100.0
+    },
+    "Check-ups": {
+        "General Check-up": 40.0,
+        "Specialist Consultation": 70.0
+    },
+    "Operations": {
+        "Minor Surgery": 500.0,
+        "Major Surgery": 1500.0
+    }
+};
+// User Input Helper
+// Wrapper for prompt() to get user input with a message.
+// This function is used to prompt the user for input and return the response.
+function promptInput(message) {
+    return prompt(message);
+}
+//List Stervices
+//Prints all available services and their prices to the console.
+function listServices() {
+    console.log("\nAvailable Services:");
+    for (const category in services) {
+        console.log(`\n${category}:`);
+        for (const subService in services[category]) {
+            console.log(`  - ${subService} : $${services[category][subService]}`);
+        }
+    }
+}
+// Add Service to Patient
+// Lets the user select a service and adds it to the patient’s record.
+function addService(patient) {
+    listServices();
+    const category = promptInput("Enter service category:");
+    if (services[category]) {
+        const subService = promptInput("Enter sub-service:");
+        if (services[category][subService]) {
+            const dateInput = promptInput("Enter date of service (YYYY-MM-DD):");
+            const price = services[category][subService];
+            patient.servicesTaken.push({
+                category,
+                subService,
+                price,
+                serviceDate: dateInput
+            });
+            alert(`Added ${subService} on ${dateInput}.`);
+        } else {
+            alert("Sub-service not found.");
+        }
+    } else {
+        alert("Category not found.");
+    }
+}
+
+function generateReceipt(patient) {
+    console.log("\n--- Receipt ---");
+    console.log(`Name: ${patient.name}`);
+    console.log(`Date of Birth: ${patient.birthDate}`);
+    console.log(`Address: ${patient.address}`);
+    console.log(`Gender: ${patient.gender}`);
+
+    let total = 0;
+    patient.servicesTaken.forEach((service, idx) => {
+        console.log(`${idx + 1}. ${service.subService} (${service.category}) on ${service.serviceDate} - $${service.price.toFixed(2)}`);
+        total += service.price;
+    });
+
+    console.log(`\nTotal Amount Due: $${total.toFixed(2)}`);
+    const payment = parseFloat(promptInput(`Enter payment amount: $`));
+    if (payment >= total) {
+        const change = payment - total;
+        alert(`Payment accepted. Change: $${change.toFixed(2)}\nThank you for choosing our hospital!`);
+    } else {
+        alert("Insufficient payment. Please pay the full amount.");
+    }
+}
+// Remove Service from Patient
+function removeService(patient) {
+    if (patient.servicesTaken.length === 0) {
+        alert("No services to remove.");
+        return;
+    }
+    let serviceList = "Services taken:\n";
+    patient.servicesTaken.forEach((service, idx) => {
+        serviceList += `${idx + 1}. ${service.subService} (${service.category}) on ${service.serviceDate}\n`;
+    });
+    const toRemove = parseInt(promptInput(serviceList + "Enter the number of the service to remove:"));
+    if (!isNaN(toRemove) && toRemove >= 1 && toRemove <= patient.servicesTaken.length) {
+        const removed = patient.servicesTaken.splice(toRemove - 1, 1)[0];
+        alert(`Removed: ${removed.subService} on ${removed.serviceDate}`);
+    } else {
+        alert("Invalid selection.");
+    }
+}
+// Reduce service 
+function generateReceipt(patient) {
+    console.log("\n--- Receipt ---");
+    console.log(`Name: ${patient.name}`);
+    console.log(`Date of Birth: ${patient.birthDate}`);
+    console.log(`Address: ${patient.address}`);
+    console.log(`Gender: ${patient.gender}`);
+
+    let total = 0;
+    patient.servicesTaken.forEach((service, idx) => {
+        console.log(`${idx + 1}. ${service.subService} (${service.category}) on ${service.serviceDate} - $${service.price.toFixed(2)}`);
+        total += service.price;
+    });
+
+// Ask for discount eligibility
+    let discount = 0;
+    const discountType = promptInput("Are you eligible for a discount?\n1. Senior Citizen (20%)\n2. PWD (15%)\n3. None\nEnter 1, 2, or 3:");
+    if (discountType === "1") {discount = 0.20;
+        alert("Senior Citizen discount applied (20%).");
+    } else if (discountType === "2") {
+        discount = 0.15;
+        alert("PWD discount applied (15%).");
+    } else {
+        alert("No discount applied.");
+    }
+
+    let discountAmount = total * discount;
+    let discountedTotal = total - discountAmount;
+
+    if (discount > 0) {
+        console.log(`Discount: -$${discountAmount.toFixed(2)}`);
+        console.log(`Discounted Total: $${discountedTotal.toFixed(2)}`);
+    }
+
+    const payment = parseFloat(promptInput(`Enter payment amount: $`));
+    if (payment >= discountedTotal) {
+        const change = payment - discountedTotal;
+        alert(`Payment accepted. Change: $${change.toFixed(2)}\nThank you for choosing our hospital!`);
+    } else {
+        alert("Insufficient payment. Please pay the full amount.");
+    }
+}
+
+// Main Function
+// This function initializes the hospital admission system, collects patient information, and manages service selection and payment.
+function main() {
+    const access = promptInput("Welcome! Do you want to access the Hospital Admission System? (yes/no)");
+    if (!access || access.toLowerCase() !== "yes") {
+        alert("Access denied. Goodbye!");
+        return;
+    }
+
+    alert("=== Hospital Admission System ===\nPlease follow the instructions below:");
+    console.log("Instructions:");
+    console.log("1. Add Service");
+    console.log("2. List Services");
+    console.log("3. Remove Service");
+    console.log("4. Checkout and Pay");
+    console.log("Type 1, 2, 3, or 4 to select an option in the menu.");
+
+    const name = promptInput("Enter patient's name:");
+    const birthDate = promptInput("Enter birth date (YYYY-MM-DD):");
+    const address = promptInput("Enter address:");
+    const gender = promptInput("Enter gender:");
+
+    const patient = {
+        name,
+        birthDate,
+        address,
+        gender,
+        servicesTaken: []
+    };
+
+    let running = true;
+    while (running) {
+        const choice = promptInput(
+            "\n1. Add Service\n2. List Services\n3. Remove Service\n4. Checkout and Pay\nChoose an option (1/2/3/4):"
+        );
+        switch (choice) {
+            case "1":
+                addService(patient);
+                break;
+            case "2":
+                listServices();
+                break;
+            case "3":
+                removeService(patient);
+                break;
+            case "4":
+                generateReceipt(patient);
+                running = false;
+                break;
+            default:
+                alert("Invalid choice. Please type 1, 2, 3, or 4.");
+        }
+    }
+}
+
+main();
